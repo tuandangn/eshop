@@ -1,8 +1,9 @@
 const expect = require('chai').expect;
 const simple = require('simple-mock');
 const ProductService = require('../../src/services/product.service');
-const { FEATURE, NON_FEATURE } = require('../../src/contants/product-category-type.const');
-const { SINGLE, GROUP } = require('../../src/contants/product-type.const');
+const { FEATURE, NON_FEATURE } = require('../../src/core/contants/product-category-type.const');
+const { SINGLE, GROUP } = require('../../src/core/contants/product-type.const');
+const QueryBuilder = require('../../src/core/data/query-builder');
 
 describe('ProductService', () => {
     describe('getProductById()', () => {
@@ -209,6 +210,57 @@ describe('ProductService', () => {
 
             productService.getProductCount().then(() => {
                 expect(repository.count.calls[0].args).to.deep.include({ deleted: false, show: true });
+                done();
+            });
+        });
+    });
+
+    describe('getPagedListProduct()', () => {
+        it('should get paged products', done => {
+            const page = 2;
+            const size = 1;
+            const count = 5;
+            const products = [{ name: 'name 1' }];
+            const repository = {
+                find: {
+                    builder: new QueryBuilder(() => { })
+                },
+                count() { }
+            };
+            simple.mock(repository.find.builder, 'build')
+                .returnWith({ exec() { return Promise.resolve(products) } });
+            simple.mock(repository, 'count').resolveWith(count);
+            const productService = new ProductService(repository);
+
+            productService.getPagedListProducts(page, size).then(result => {
+                expect(result.data).to.equal(products);
+                expect(result.pageInfo).to.deep.eq({ page, size, totalPages: count, totalItems: count });
+                expect(repository.count.calls[0].args).to.deep.include({ deleted: false, show: true });
+                done();
+            });
+        });
+
+        it('should exclude not shown products', done => {
+            const showHidden = true;
+            const page = 2;
+            const size = 1;
+            const count = 5;
+            const products = [{ name: 'name 1' }];
+            const repository = {
+                find: {
+                    builder: new QueryBuilder(() => { })
+                },
+                count() { }
+            };
+            simple.mock(repository.find.builder, 'build')
+                .returnWith({ exec() { return Promise.resolve(products) } });
+            simple.mock(repository, 'count').resolveWith(count);
+            const productService = new ProductService(repository);
+
+            productService.getPagedListProducts(page, size, showHidden).then(result => {
+                expect(result.data).to.equal(products);
+                expect(result.pageInfo).to.deep.eq({ page, size, totalPages: count, totalItems: count });
+                expect(repository.count.calls[0].args).to.deep.include({ deleted: false });
                 done();
             });
         });

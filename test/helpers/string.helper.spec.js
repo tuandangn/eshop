@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const { toAscii } = require('../../src/helpers/string.helper');
+const { toAscii } = require('../../src/common/helpers/string.helper');
 
 describe('StringHelper', () => {
     describe('toAscii()', () => {

@@ -3,7 +3,9 @@ const { ALL, FEATURE, NON_FEATURE } = require('../core/contants/product-category
 const MessageService = require('./message.service');
 const { forkJoin } = require('rxjs');
 const { map } = require('rxjs/operators');
-const { SINGLE, GROUP } = require('../core/contants/product-type.const');
+const { GROUP } = require('../core/contants/product-type.const');
+const ConditionBuilder = require('../core/data/condition-builder');
+const PagedList = require('../common/paged-list');
 
 const messageService = new MessageService();
 
@@ -62,23 +64,36 @@ class ProductService {
     }
 
     getProductCount(showHidden = false) {
-        const productCount$ = showHidden => {
-            const countProps = { deleted: false };
-            if (!showHidden) countProps.show = true;
-
-            return this.repository.count(countProps);
-        };
+        const productCount$ = showHidden => new ConditionBuilder(this.repository.count)
+            .con('deleted', false)
+            .conIfFalse('show', showHidden, true)
+            .build();
 
         return productCount$(showHidden);
     }
 
-    getAllProducts(showHidden = false) {
-        const products$ = showHidden => {
-            const findProps = { deleted: false };
-            if (!showHidden) findProps.show = true;
+    getPagedListProducts(page, size, showHidden = false) {
+        const products$ = (page, size, showHidden) => this.repository.find.builder
+            .con('deleted', false)
+            .conIfFalse('show', showHidden, true)
+            .page(page, size)
+            .build()
+            .exec();
+        const count$ = showHidden => new ConditionBuilder(this.repository.count)
+            .con('deleted', false)
+            .conIfFalse('show', showHidden, true)
+            .build();
+        const pagedListProducts$ = (page, size, showHidden) => Promise.all([products$(page, size, showHidden), count$(showHidden)])
+            .then(([products, count]) => new PagedList(products, count, page, size));
 
-            return this.repository.find(findProps);
-        };
+        return pagedListProducts$(page, size, showHidden);
+    }
+
+    getAllProducts(showHidden = false) {
+        const products$ = showHidden => new ConditionBuilder(this.repository.find)
+            .con('deleted', false)
+            .conIfFalse('show', showHidden, true)
+            .build();
 
         return products$(showHidden);
     }
@@ -87,12 +102,10 @@ class ProductService {
         if (name == null)
             throw new Error(messageService.propertyNull('Name'));
 
-        const products$ = showHidden => {
-            const findProps = { deleted: false };
-            if (!showHidden) findProps.show = true;
-
-            return this.repository.find(findProps);
-        };
+        const products$ = showHidden => new ConditionBuilder(this.repository.find)
+            .con('deleted', false)
+            .conIfFalse('show', showHidden, true)
+            .build();
 
         const asciiFindName = toAscii(name.normalize());
         const products = await products$(showHidden);
@@ -193,18 +206,11 @@ class ProductService {
         if (category == null || category.deleted)
             return Promise.reject(messageService.notFound('Category'));
 
-        const products$ = (categoryId, showHidden) => {
-            const findProps = {
-                deleted: false,
-                categories: {
-                    $elemMatch: {
-                        categoryId
-                    }
-                }
-            };
-            if (!showHidden) findProps.show = true;
-            return this.repository.find(findProps);
-        };
+        const products$ = (categoryId, showHidden) => new ConditionBuilder(this.repository.find)
+            .con('deleted', false)
+            .elementMatch('categories', { categoryId })
+            .conIfFalse('show', showHidden, true)
+            .build();
 
         return products$(categoryId, showHidden);
     }
@@ -213,14 +219,11 @@ class ProductService {
         if (groupId == null)
             throw new Error('Group id must be not null');
 
-        const productsInGroup$ = (groupId, showHidden) => {
-            const findProps = {
-                deleted: false,
-                group: groupId
-            };
-            if (!showHidden) findProps.show = true;
-            return this.repository.find(findProps);
-        };
+        const productsInGroup$ = (groupId, showHidden) => new ConditionBuilder(this.repository.find)
+            .con('deleted', false)
+            .con('group', groupId)
+            .conIfFalse('show', showHidden, true)
+            .build();
 
         return productsInGroup$(groupId, showHidden);
     }

@@ -1,4 +1,4 @@
-const builder = require('./common/builder');
+const builder = require('./common/server.builder');
 
 const port = process.env.PORT || 3000;
 const connectionString = 'mongodb://localhost/eshop-catalog';

@@ -2,6 +2,7 @@ const { toAscii } = require('../common/helpers/string.helper');
 const { from, forkJoin } = require('rxjs');
 const { switchMap, toArray, map } = require('rxjs/operators');
 const MessageService = require('../services/message.service');
+const ConditionBuilder = require('../core/data/condition-builder');
 
 const messageService = new MessageService();
 
@@ -59,24 +60,19 @@ class CategoryService {
     }
 
     getCategoryCount(showHidden = false) {
-        const categoryCount$ = showHidden => {
-            const countProps = { deleted: false };
-            if (!showHidden) countProps.show = true;
-
-            return this.repository.count(countProps);
-        };
+        const categoryCount$ = showHidden => new ConditionBuilder(this.repository.count)
+            .con('deleted', false)
+            .conIfFalse('show', showHidden, true)
+            .build();
 
         return categoryCount$(showHidden);
     }
 
     getAllCategories(showHidden = false) {
-        const categories$ = showHidden => {
-            const findProps = { deleted: false };
-            if (!showHidden) findProps.show = true;
-
-            return this.repository.find(findProps);
-        };
-
+        const categories$ = showHidden => new ConditionBuilder(this.repository.find)
+            .con('deleted', false)
+            .conIfFalse('show', showHidden, true)
+            .build();
 
         return categories$(showHidden);
     }
@@ -85,26 +81,24 @@ class CategoryService {
         if (category == null)
             throw new Error('Category must be not null');
 
-        const categoriesByParent$ = (parentId, showHidden) => {
-            const findProps = { parent: parentId, deleted: false };
-            if (!showHidden) findProps.show = true;
-
-            return this.repository.find(findProps);
-        };
+        const categoriesByParent$ = (parentId, showHidden) => new ConditionBuilder(this.repository.find)
+            .con('deleted', false)
+            .conIfFalse('show', showHidden, true)
+            .con('parent', parentId)
+            .build();
 
         return categoriesByParent$(category._id, showHidden);
     }
 
+    //*TODO* sort by, sort direction
     async getCategoriesByName(name, showHidden = false) {
         if (name == null)
             throw new Error('Name must be not null');
 
-        const categories$ = showHidden => {
-            const findProps = { deleted: false };
-            if (!showHidden) findProps.show = true;
-
-            return this.repository.find(findProps);
-        };
+        const categories$ = showHidden => new ConditionBuilder(this.repository.find)
+            .con('deleted', false)
+            .conIfFalse('show', showHidden, true)
+            .build();
 
         const asciiFindName = toAscii(name.normalize());
         const categories = await categories$(showHidden);

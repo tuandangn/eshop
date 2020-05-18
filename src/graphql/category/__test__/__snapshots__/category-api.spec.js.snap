@@ -1,0 +1,174 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Category API Category should query parent category 1`] = `
+Object {
+  "data": Object {
+    "category": Object {
+      "all": Array [
+        Object {
+          "parent": null,
+        },
+        Object {
+          "parent": Object {
+            "id": "1",
+            "name": "category 1",
+          },
+        },
+      ],
+    },
+  },
+  "errors": undefined,
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;
+
+exports[`Category API Category should query products by category 1`] = `
+Object {
+  "data": Object {
+    "category": Object {
+      "all": Array [
+        Object {
+          "id": "1",
+          "name": "category 1",
+          "products": Array [
+            Object {
+              "id": "1",
+              "name": "product 1",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  "errors": undefined,
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;
+
+exports[`Category API Query all should query all categories with valid fields 1`] = `
+Object {
+  "data": Object {
+    "category": Object {
+      "all": Array [
+        Object {
+          "customPagination": false,
+          "defaultPageSize": 12,
+          "description": "desc",
+          "displayOrder": 1,
+          "id": "1",
+          "name": "category 1",
+          "pageSizes": null,
+          "show": true,
+          "type": "NEWS",
+        },
+        Object {
+          "customPagination": true,
+          "defaultPageSize": 10,
+          "description": "abcdef",
+          "displayOrder": 3,
+          "id": "2",
+          "name": "category 2",
+          "pageSizes": "1,2,3,4",
+          "show": false,
+          "type": "PRODUCTS",
+        },
+      ],
+    },
+  },
+  "errors": undefined,
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;
+
+exports[`Category API Query one() should query one category 1`] = `
+Object {
+  "data": Object {
+    "category": Object {
+      "one": Object {
+        "customPagination": false,
+        "defaultPageSize": 12,
+        "description": "desc",
+        "displayOrder": 1,
+        "id": "1",
+        "name": "category 1",
+        "pageSizes": null,
+        "show": true,
+        "type": "NEWS",
+      },
+    },
+  },
+  "errors": undefined,
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;
+
+exports[`Category API Query search() should query search categories 1`] = `
+Object {
+  "data": Object {
+    "category": Object {
+      "search": Array [
+        Object {
+          "customPagination": false,
+          "defaultPageSize": 12,
+          "description": "desc",
+          "displayOrder": 1,
+          "id": "1",
+          "name": "category 1",
+          "pageSizes": null,
+          "show": true,
+          "type": "NEWS",
+        },
+        Object {
+          "customPagination": false,
+          "defaultPageSize": 12,
+          "description": "desc",
+          "displayOrder": 1,
+          "id": "2",
+          "name": "category 2",
+          "pageSizes": null,
+          "show": true,
+          "type": "NEWS",
+        },
+        Object {
+          "customPagination": true,
+          "defaultPageSize": 9,
+          "description": "description",
+          "displayOrder": 5,
+          "id": "3",
+          "name": "category 3",
+          "pageSizes": "12, 9, 6, 4",
+          "show": true,
+          "type": "PRODUCTS",
+        },
+      ],
+    },
+  },
+  "errors": undefined,
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;
